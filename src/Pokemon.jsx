@@ -1,107 +1,131 @@
 import { useState, useEffect } from "react";
-import React from "react";
-import "./App.css";
+import "./App.css"
 
 export const Pokemon = () => {
   const [pokemon, setPokemon] = useState([]);
+  const [search, setSearch] = useState("");
   const [loding, setLoding] = useState(true);
-  const [error, setError] = useState(null);
-  const [search, setSearch] =useState("");
+  const [error, seterror] = useState(null);
 
   const API = "https://pokeapi.co/api/v2/pokemon?limit=100&offset=0";
-
-  const apiData = async () => {
+  const fristApiData = async () => {
     try {
       const res = await fetch(API);
       const data = await res.json();
 
-      const datailedPokemondata = data.results.map(async (curr) => {
+      const secondApiData = data.results.map(async (curr) => {
         const res = await fetch(curr.url);
         const data = await res.json();
         return data;
       });
-
-      const responseData = await Promise.all(datailedPokemondata);
-      console.log(responseData);
+      const responseData = await Promise.all(secondApiData);
       setPokemon(responseData);
       setLoding(false);
     } catch (error) {
       console.log(error);
-      setLoding(false);
-      setError(error);
+      seterror(error);
     }
   };
 
-  useEffect(() => {
-    apiData();
-  }, []);
+  const searchData = pokemon.filter((currPokrmon) =>
+    currPokrmon.name.toLowerCase().includes(search.toLowerCase())
+  );
 
-  const searchData = pokemon.filter((currPokrmon) => currPokrmon.name.toLowerCase().includes(search.toLowerCase()) )
+  useEffect(() => {
+    fristApiData();
+  }, []);
 
   if (loding) {
     return (
       <div>
-        <h1>Loding....</h1>
+        <h1>Loding.....</h1>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div>
+        <h1>{error.message}</h1>
       </div>
     );
   }
 
-  if (error) {
-    return <div>{error.message}</div>;
-  }
-
   return (
     <>
+      <h1>Makeing API Pokemon Project Demo</h1>
       <section>
         <header>
-          <h1>Know Some About Data of Pokemon </h1>
+          <h1>Pokemon Api fetch data</h1>
         </header>
         <input
           type="text"
-          className="inputfield"
-          placeholder="Search Pokeman Name"
+          placeholder="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <div className="card-section">
-          <ul>
-            {searchData.map((curr) => {
-              return (
-                <li key={curr.id}>
-                  <figure>
-                    <img
-                      src={curr.sprites.other.dream_world.front_default}
-                      alt="pokeman-img"
-                    />
-                  </figure>
-                  <h2>{curr.name}</h2>
-                  <div className="spaciality">
-                    <h3>
-                      {curr.types.map((inner) => inner.type.name)
-                      .join(", ")}
-                    </h3>
+        <ul>
+          {searchData.map((data) => {
+            return (
+              <li key={data.id}>
+                <section>
+                  <div className="img">
+                    <figure>
+                      <img
+                        src={data.sprites.other.dream_world.front_default}
+                        alt=""
+                      />
+                    </figure>
+                    <div className="name">
+                      <h2>{data.name}</h2>
+                    </div>
+                    <div className="type">
+                      <p>{data.types.map((pen) => pen.type.name).join(", ")}</p>
+                    </div>
+                    <div className="childOne">
+                      <div className="childName">
+                        <p>
+                          Height - <span>{data.height}</span>
+                        </p>
+                      </div>
+                      <div className="childName">
+                        <p>
+                          Weight - <span>{data.weight}</span>
+                        </p>
+                      </div>
+                      <div className="childName">
+                        <p>
+                          Speed - <span>{data.stats[5].base_stat}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="childTwo">
+                      <div className="secondChild">
+                        <p>
+                          Experience - <span>{data.base_experience}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="secondChild">
+                      <p>
+                        Attack - <span>{data.stats[1].base_stat}</span>
+                      </p>
+                    </div>
+                    <div className="secondChild">
+                      <p>
+                        Abilites -{" "}
+                        <span>
+                          {data.abilities
+                            .map((paper) => paper.ability.name)
+                            .join(", ")}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                  <div className="detals">
-                    <p>Height: {curr.height}</p>
-                    <p>Weight: {curr.weight}</p>
-                    <p>Speed : {curr.stats[5].base_stat}</p>
-                  </div>
-                  <div className="second-info">
-                    <p>Experience: {curr.base_experience}</p>
-                    <p>Attack: {curr.stats[1].base_stat}</p>
-                    <span>Abilities</span>
-                    <p>
-                      {curr.abilities
-                        .map((abilityInfo) => abilityInfo.ability.name)
-                        .slice(0, 4)
-                        .join(", ")}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+                </section>
+              </li>
+            );
+          })}
+        </ul>
       </section>
     </>
   );
