@@ -64,6 +64,7 @@ export const Pokemon = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <ul>
+          {searchData.length === 0 && <h2>Data Not Found</h2>}
           {searchData.map((data) => {
             return (
               <li key={data.id}>
